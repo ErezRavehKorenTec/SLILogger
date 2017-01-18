@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Logger.Enums
+namespace Log.Enums
 {
-    public enum Severity
+    public enum SeverityLevels
     {
         All = 0,
         Debug,

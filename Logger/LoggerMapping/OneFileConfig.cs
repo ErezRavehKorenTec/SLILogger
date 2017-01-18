@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Logger
+namespace Log
 {
-    public class ErrorConfig : BaseLoggerConfig
+    public class OneFileConfig : BaseLoggerConfig
     {
         public bool ImmediateFlush { get; set; }
     }

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Logger;
+using Log;
 using System.Threading;
+using Log.Enums;
 
 namespace SLILogger
 {
@@ -11,28 +12,28 @@ namespace SLILogger
     {
         public static void Main(string[] args)
         {
-            var thread1 = Task.Run(() => WriteDubug());
-            var thread3 = Task.Run(() => WriteError());
+            Logger log = new Logger();
+            var thread1 = Task.Run(() => WriteDubug(log));
+            var thread3 = Task.Run(() => WriteError(log));
             Task.WaitAll(new[] { thread1, thread3 });
-            //while (true)
-            //    Logger.Logger.GetInstance().WriteToLog("", Logger.Enums.Severity.Error, "this is test");
         }
-
-        private static void WriteError()
+        private static void WriteError(Logger log)
         {
             while (true)
             {
-
-                Logger.Logger.GetInstance().WriteToLog("", Logger.Enums.Severity.Error, "this is test");
+                var logMessage = LogMessage.CreateNewByText("this is test error", SeverityLevels.Error, DateTime.Now);
+                logMessage.ExtraString = "Time = " + DateTime.Now;
+                log.PublishMessage(logMessage);
             }
         }
 
-        private static void WriteDubug()
+        private static void WriteDubug(Logger log)
         {
             while (true)
             {
-
-                Logger.Logger.GetInstance().WriteToLog("", Logger.Enums.Severity.Debug, "this is test to error");
+                var logMessage = LogMessage.CreateNewByText("this is test debug", SeverityLevels.Debug, DateTime.Now);
+                logMessage.ExtraString = "Time = " + DateTime.Now;
+                log.PublishMessage(logMessage);
             }
         }
     }

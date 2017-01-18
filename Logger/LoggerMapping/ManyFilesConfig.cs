@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Logger
+namespace Log
 {
-    public class DebugConfig : BaseLoggerConfig
+    public class ManyFilesConfig : BaseLoggerConfig
     {
         public int AmountOfFiles { get; set; }
         public int SizeThresholdInBytes { get; set; }
