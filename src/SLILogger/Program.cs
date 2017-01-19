@@ -14,8 +14,9 @@ namespace SLILogger
         {
             Logger log = new Logger();
             var thread1 = Task.Run(() => WriteDubug(log));
+            //var thread2 = Task.Run(() => WriteDubug(log));
             var thread3 = Task.Run(() => WriteError(log));
-            Task.WaitAll(new[] { thread1, thread3 });
+            Task.WaitAll(new[] { thread1, /*thread2,*/thread3 });
         }
         private static void WriteError(Logger log)
         {

@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using Log.LoggerMapping;
 using System.Threading;
 using System.Text;
+using System.Collections;
 
 namespace Log
 {
@@ -16,7 +17,6 @@ namespace Log
     {
         void PublishMessage(SLI_Message message);
         void Close();
-        //void RegisterUser(IMessageReciever message);
     }
 
     public class Logger : ILogger
@@ -27,7 +27,6 @@ namespace Log
         #endregion
 
         #region Dictionary to be lock using tasks
-
         private ConcurrentDictionary<int, SLI_Message> debugDictionary = null;
         private ConcurrentDictionary<int, SLI_Message> errorDictionary = null;
         #endregion
@@ -39,6 +38,7 @@ namespace Log
         #region Param
         private static Timer _writeTime;
         private static volatile int dldnow;
+        private Dictionary<SeverityLevels, Queue<string>> severityfilequeue = new Dictionary<SeverityLevels, Queue<string>>();
         #endregion
 
         #region Ctor
@@ -48,6 +48,7 @@ namespace Log
             _writeTime = new Timer(new TimerCallback(WriteToAllFile), dldnow, _logConfig.TimeUntilFileWrite, _logConfig.TimeUntilFileWrite);
         }
         #endregion
+
         #region PublicMethods  
 
         public void PublishMessage(SLI_Message _message)
@@ -69,7 +70,41 @@ namespace Log
         #endregion
 
         #region Private Methods
+        private Queue<string> InitializeQueue(int _amountoffiles, string _filepath, int maxfilesize)
+        {
+            Queue<string> _emptyfilepathqueue = new Queue<string>(_amountoffiles);
+            Queue<string> _existfilepathqueue = new Queue<string>(_amountoffiles);
+            string _extension = Path.GetExtension(_filepath);
+            for (int i = -1; i < _amountoffiles - 1; i++)
+            {
+                string newfilepath = _filepath;
+                newfilepath = newfilepath.Replace(_extension, "_" + (i + 1) + _extension);
+                if (File.Exists(newfilepath) && new System.IO.FileInfo(newfilepath).Length >= maxfilesize)
+                    _existfilepathqueue.Enqueue(newfilepath);
+                else
+                    break;
 
+            }
+            //all log file are full at initilize
+            if (_existfilepathqueue.Count == _amountoffiles)
+            {
+                return _existfilepathqueue;
+            }
+
+            else
+            {
+                for (int i = _existfilepathqueue.Count - 1; i < _amountoffiles - 1; i++)
+                {
+                    string newfilepath = _filepath;
+                    newfilepath = newfilepath.Replace(_extension, "_" + (i + 1) + _extension);
+                    _emptyfilepathqueue.Enqueue(newfilepath);
+
+                }
+                while (_existfilepathqueue.Count != 0)
+                    _emptyfilepathqueue.Enqueue(_existfilepathqueue.Dequeue());
+                return _emptyfilepathqueue;
+            }
+        }
         private void GetLoggerConfiguration()
         {
             try
@@ -231,6 +266,7 @@ namespace Log
 
         private bool WriteToFile(SeverityLevels _severity)
         {
+
             try
             {
                 StringBuilder messageToWrite = new StringBuilder();
@@ -239,37 +275,38 @@ namespace Log
                 {
                     case SeverityLevels.Debug:
                         {
+                            long fileSize;
+                            if (severityfilequeue.Count == 0)
+                                severityfilequeue.Add(SeverityLevels.Debug, new Queue<string>());
+                            if (((Queue<string>)severityfilequeue[SeverityLevels.Debug]).Count() == 0)
+                            {
+                                severityfilequeue[SeverityLevels.Debug] = InitializeQueue(((ManyFilesConfig)levelConfiguration[_severity]).AmountOfFiles, levelConfiguration[_severity].FilePath, ((ManyFilesConfig)levelConfiguration[_severity]).SizeThresholdInBytes);
+                            }
                             if (debugDictionary.Count > 0)
                             {
-                                long fileSize = 0;
-                                string extension = Path.GetExtension(levelConfiguration[_severity].FilePath);
                                 string filepath = string.Empty;
-                                PrepareMessages(ref messageToWrite, _severity);
-                                for (int i = -1; i < ((ManyFilesConfig)levelConfiguration[_severity]).AmountOfFiles; i++)
+                                filepath = severityfilequeue[SeverityLevels.Debug].Peek();
+                                if (File.Exists(filepath))
                                 {
-                                    filepath = levelConfiguration[_severity].FilePath;// + "_" + (i+1);
-                                    filepath = filepath.Replace(extension, "_" + (i + 1) + extension);
-                                    if (File.Exists(filepath))
-                                    {
-                                        fileSize = new System.IO.FileInfo(filepath).Length;
-                                        if (fileSize < ((ManyFilesConfig)levelConfiguration[_severity]).SizeThresholdInBytes)
-                                            break;
-                                        else
-                                            continue;
-
-                                    }
-                                    else
-                                        break;
+                                    fileSize = new FileInfo(filepath).Length;
+                                    if (fileSize >= ((ManyFilesConfig)levelConfiguration[_severity]).SizeThresholdInBytes)
+                                        File.Create(filepath);
                                 }
-
-                                if ((!filepath.Contains("100")) || (filepath.Contains("100") && fileSize < ((ManyFilesConfig)levelConfiguration[_severity]).SizeThresholdInBytes * 1.1))
-                                    using (StreamWriter file = File.AppendText(filepath))
-                                    {
-                                        file.WriteLine(messageToWrite);
-                                    }
+                                else
+                                    File.Create(filepath);
+                                PrepareMessages(ref messageToWrite, _severity);
+                                using (StreamWriter file = File.AppendText(filepath))
+                                {
+                                    file.WriteLine(messageToWrite);
+                                }
+                                fileSize = new FileInfo(filepath).Length;
+                                if (fileSize > ((ManyFilesConfig)levelConfiguration[_severity]).SizeThresholdInBytes)
+                                {
+                                    severityfilequeue[SeverityLevels.Debug].Enqueue(severityfilequeue[SeverityLevels.Debug].Dequeue());
+                                }
                             }
-                            break;
                         }
+                        break;
                     case SeverityLevels.Error:
                         {
                             if (errorDictionary.Count > 0)
