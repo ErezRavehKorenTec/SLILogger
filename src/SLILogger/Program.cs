@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Log;
 using System.Threading;
-using Log.Enums;
+using SLI.Logger;
 
 namespace SLILogger
 {
@@ -12,16 +11,25 @@ namespace SLILogger
     {
         public static void Main(string[] args)
         {
+            Logger.OnErrorEvent += new EventHandler<ErrorMessageEventArgs>(errorMessageReceive);
             Logger log = new Logger();
             var thread1 = Task.Run(() => WriteDubug(log));
             //var thread2 = Task.Run(() => WriteDubug(log));
             var thread3 = Task.Run(() => WriteError(log));
             Task.WaitAll(new[] { thread1, /*thread2,*/thread3 });
+
         }
+
+        private static void errorMessageReceive(object sender, ErrorMessageEventArgs e)
+        {
+            Console.WriteLine("Event Raised--"+e.Message);
+        }
+
         private static void WriteError(Logger log)
         {
             while (true)
             {
+                Thread.Sleep(100);
                 var logMessage = LogMessage.CreateNewByText("this is test error", SeverityLevels.Error, DateTime.Now);
                 logMessage.ExtraString = "Time = " + DateTime.Now;
                 log.PublishMessage(logMessage);

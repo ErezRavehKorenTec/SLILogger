@@ -4,14 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.IO;
-using Log.Enums;
 using System.Collections.Concurrent;
-using Log.LoggerMapping;
 using System.Threading;
 using System.Text;
 using System.Collections;
 
-namespace Log
+namespace SLI.Logger
 {
     public interface ILogger
     {
@@ -21,6 +19,10 @@ namespace Log
 
     public class Logger : ILogger
     {
+        #region Events
+        public static event EventHandler<ErrorMessageEventArgs> OnErrorEvent;
+        #endregion
+
         #region Implementation Configuration Holder
         private LoggerConfiguration _logConfig = null;
         private Dictionary<SeverityLevels, BaseLoggerConfig> levelConfiguration = new Dictionary<SeverityLevels, BaseLoggerConfig>();
@@ -212,7 +214,6 @@ namespace Log
                             }
                             while (!added);
                             dictionarySize = debugDictionary.Count;
-                            Console.WriteLine("DebugSize:" + dictionarySize);
                             break;
                         }
                     case SeverityLevels.Error:
@@ -226,8 +227,8 @@ namespace Log
                                     throw new Exception("Add tuple was not success", new Exception(SeverityLevels.Error.ToString()));
                             }
                             while (!added);
+                            Logger.OnErrorEvent(null, new ErrorMessageEventArgs { Message = temp.Message });
                             dictionarySize = errorDictionary.Count;
-                            Console.WriteLine("ErrorSize:" + dictionarySize);
                             break;
                         }
                     case SeverityLevels.All:

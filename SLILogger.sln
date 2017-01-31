@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SLILogger", "src\SLILogger\SLILogger.xproj", "{8A44212D-CDD0-4136-B4BE-26CA49785DE4}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Logger", "Logger\Logger.xproj", "{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SLI.Logger", "Logger\SLI.Logger.xproj", "{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

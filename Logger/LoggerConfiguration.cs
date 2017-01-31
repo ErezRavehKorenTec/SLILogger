@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Log.LoggerMapping
+namespace SLI.Logger
 {
     public class LoggerConfiguration
     {

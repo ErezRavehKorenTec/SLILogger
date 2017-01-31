@@ -1,10 +1,9 @@
-﻿using Log.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Log
+namespace SLI.Logger
 {
     public class LogMessage
     {
@@ -17,7 +16,7 @@ namespace Log
     {
         public string AdditonalMessage { get; set; }
         public string ExtraString { get; set; }
-        public String Message { get; set; }
+        public string Message { get; set; }
         public SeverityLevels Level { get; set; }
         public DateTime Time { get; set; }
 
