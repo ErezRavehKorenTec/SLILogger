@@ -1,13 +1,8 @@
 {
   "version": "1.0.0-*",
-  "buildOptions": {
-    "emitEntryPoint": true
-  },
 
   "dependencies": {
-    "Logger": "1.0.0-*",
-    "Microsoft.NETCore.App": "1.0.0",
-    "SLI.Data.DataCollectionHandler": "1.0.0-*"
+    "Microsoft.NETCore.App": "1.0.0"
   },
 
   "frameworks": {
@@ -20,4 +15,4 @@
     "win7-x64": {},
     "ubuntu.14.04-x64": {}
   }
-  }
+}

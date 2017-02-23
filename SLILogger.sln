@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{88ECB913-7D78-481C-9333-D09D23ED695F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CE44FDB6-D5A3-4E91-B1E2-6E1B0FC04CD9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{CE44FDB6-D5A3-4E91-B1E2-6E1B0FC04CD9}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
 	EndProjectSection
@@ -13,6 +13,15 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SLILogger", "src\SLILogger\SLILogger.xproj", "{8A44212D-CDD0-4136-B4BE-26CA49785DE4}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SLI.Logger", "Logger\SLI.Logger.xproj", "{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SLI.Common", "SLI.Common\SLI.Common.xproj", "{C12D8DE5-E626-4145-B922-017704B8C964}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataRelated", "DataRelated", "{2B72B842-FB67-4AD3-8E47-52D0B7BE3E89}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SLI.Data.DataCollectionHandler", "SLI.Data.DataCollectionHandler\SLI.Data.DataCollectionHandler.xproj", "{8CF7E8C4-4582-4517-9F7E-CE4E8D2A2DFB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1} = {E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +37,14 @@ Global
 		{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C12D8DE5-E626-4145-B922-017704B8C964}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C12D8DE5-E626-4145-B922-017704B8C964}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C12D8DE5-E626-4145-B922-017704B8C964}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C12D8DE5-E626-4145-B922-017704B8C964}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CF7E8C4-4582-4517-9F7E-CE4E8D2A2DFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CF7E8C4-4582-4517-9F7E-CE4E8D2A2DFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CF7E8C4-4582-4517-9F7E-CE4E8D2A2DFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CF7E8C4-4582-4517-9F7E-CE4E8D2A2DFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -35,5 +52,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8A44212D-CDD0-4136-B4BE-26CA49785DE4} = {88ECB913-7D78-481C-9333-D09D23ED695F}
 		{E26DBDA5-DDAB-4EB1-81E3-94F6DF2E73F1} = {CE44FDB6-D5A3-4E91-B1E2-6E1B0FC04CD9}
+		{C12D8DE5-E626-4145-B922-017704B8C964} = {CE44FDB6-D5A3-4E91-B1E2-6E1B0FC04CD9}
+		{8CF7E8C4-4582-4517-9F7E-CE4E8D2A2DFB} = {2B72B842-FB67-4AD3-8E47-52D0B7BE3E89}
 	EndGlobalSection
 EndGlobal

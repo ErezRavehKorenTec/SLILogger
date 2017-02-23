@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using SLI.Logger;
+using SLI.Data.DataCollectionHandler;
 
 namespace SLILogger
 {
@@ -13,11 +14,28 @@ namespace SLILogger
         {
             Logger.OnErrorEvent += new EventHandler<ErrorMessageEventArgs>(errorMessageReceive);
             Logger log = new Logger();
-            var thread1 = Task.Run(() => WriteDubug(log));
-            //var thread2 = Task.Run(() => WriteDubug(log));
-            var thread3 = Task.Run(() => WriteError(log));
-            Task.WaitAll(new[] { thread1, /*thread2,*/thread3 });
+            RunServerLisener(log);
+            var thread1 = Task.Run(() => RunServerLisener(log));
+            //var thread1 = Task.Run(() => WriteDubug(log));
+            //var thread3 = Task.Run(() => StayAlive());
+            //var thread3 = Task.Run(() => WriteError(log));
+            Task.WaitAll(new[] { thread1/*, thread2,thread3*/ });
+            //while (true) ;
 
+        }
+
+        private static void StayAlive()
+        {
+            while (true)
+            {
+                Thread.Sleep(10000);
+            }
+        }
+
+        private static void RunServerLisener(Logger log)
+        {
+            new DataCollectionHandler().StartListen(log);
+            //new DataCollectionHandler().DataClientProccessThread(null);
         }
 
         private static void errorMessageReceive(object sender, ErrorMessageEventArgs e)

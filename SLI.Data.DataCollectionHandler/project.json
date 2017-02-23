@@ -1,16 +1,17 @@
 {
   "version": "1.0.0-*",
-  "buildOptions": {
-    "emitEntryPoint": false
-  },
 
   "dependencies": {
+    "Logger": "1.0.0-*",
     "Microsoft.Extensions.Configuration": "1.0.0",
     "Microsoft.Extensions.Configuration.Abstractions": "1.0.0",
     "Microsoft.Extensions.Configuration.Binder": "1.0.0",
     "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0",
     "Microsoft.Extensions.Configuration.Json": "1.0.0",
-    "Microsoft.NETCore.App": "1.0.0"
+    "Microsoft.NETCore.App": "1.0.0",
+    "Newtonsoft.Json": "9.0.1",
+    "SLI.Common": "1.0.0-*",
+    "System.Net.Sockets": "4.1.0"
   },
 
   "frameworks": {
