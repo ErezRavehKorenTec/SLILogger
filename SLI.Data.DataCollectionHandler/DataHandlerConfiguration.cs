@@ -8,7 +8,7 @@ namespace SLI.Data.DataCollectionHandler
     public class DataHandlerConfiguration
     {
         public int DataHandlerListeningPort { get; set; }
+        public int KeepAliveListeningPort { get; set; }
         public int TimeToTrigerKeepAliveCheck { get; set; }
-
     }
 }

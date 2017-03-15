@@ -5,7 +5,6 @@
   },
 
   "dependencies": {
-    "Logger": "1.0.0-*",
     "Microsoft.NETCore.App": "1.0.0",
     "SLI.Data.DataCollectionHandler": "1.0.0-*"
   },

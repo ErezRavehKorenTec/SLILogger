@@ -28,7 +28,7 @@ namespace SLI.Data.DataCollectionHandler
                 switch (_allReceiveData.ogerout_msg_type)
                 {
                     case "error":
-                        DataCollectionHandler._logger.PublishMessage(new Logger.SLI_Message(string.Format("Error Code:{0}, Error Reason:{1}", _allReceiveData.payload.error_reason, _allReceiveData.payload.error_reason), Logger.SeverityLevels.Debug, DateTime.Now));
+                        DataCollectionHandler._logger.PublishMessage(new Logger.SLI_Message($"Error Code:{_allReceiveData.payload.error_reason}, Error Reason:{_allReceiveData.payload.error_reason},Error Time:{ ParseTimestampToDateTime(_allReceiveData.payload.timestamp)}", Logger.SeverityLevels.Debug, DateTime.Now));
                         break;
                     case "sensor":
                         DecodedObjects.Add(new DefaultData(_allReceiveData.payload.name, _allReceiveData.payload.sample, (DataType)_allReceiveData.payload.type, ParseTimestampToDateTime(_allReceiveData.payload.timestamp)));

@@ -16,7 +16,8 @@ namespace SLI.Data.DataCollectionHandler
     public class DataCollectionHandler
     {
         #region [Param]
-        private bool _isConnectionActive;
+        private bool _isDataConnectionActive;
+        private bool _isKeepAliveConnectionActive;
         private Action<IData> _dataIsReady;
         private DataHandlerConfiguration _dataHandlerConfig = null;
         private DataDecoder _decoder;
@@ -29,6 +30,7 @@ namespace SLI.Data.DataCollectionHandler
         private IConfigurationRoot Configuration { get; set; }
         public static Dictionary<string, DateTime> ClientList { get; set; }
         private static TcpListener Listener { get; set; }
+        private static TcpListener KeepAliveListiner { get; set; }
         #endregion
 
         #region [Ctor]
@@ -49,7 +51,7 @@ namespace SLI.Data.DataCollectionHandler
                 Configuration.GetSection("DataCollectionHandler").Bind(_dataHandlerConfig);
                 _writeTime = new Timer(new TimerCallback(CheckAliveClients), dldnow, _dataHandlerConfig.TimeToTrigerKeepAliveCheck, _dataHandlerConfig.TimeToTrigerKeepAliveCheck);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.PublishMessage(new Logger.SLI_Message(ex.Message, Logger.SeverityLevels.Error, DateTime.Now));
             }
@@ -57,12 +59,14 @@ namespace SLI.Data.DataCollectionHandler
 
         private void CheckAliveClients(object state)
         {
+            DateTime tempval;
             _writeTime.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
             foreach (KeyValuePair<string, DateTime> obj in ClientList)
             {
-                if (obj.Value.AddMilliseconds(_dataHandlerConfig.TimeToTrigerKeepAliveCheck)< DateTime.Now)
+                tempval = obj.Value;
+                if (tempval.AddMilliseconds(_dataHandlerConfig.TimeToTrigerKeepAliveCheck) < DateTime.UtcNow)
                 {
-                    _logger.PublishMessage(new Logger.SLI_Message(string.Format("Client:{0} was disconnected", obj.Key), Logger.SeverityLevels.Error, DateTime.Now));
+                    _logger.PublishMessage(new Logger.SLI_Message($"Client:{obj.Key} was disconnected", Logger.SeverityLevels.Error, DateTime.Now));
                 }
             }
             _writeTime.Change(_dataHandlerConfig.TimeToTrigerKeepAliveCheck, _dataHandlerConfig.TimeToTrigerKeepAliveCheck);
@@ -70,7 +74,8 @@ namespace SLI.Data.DataCollectionHandler
 
         public void StopListening()
         {
-            _isConnectionActive = false;
+            _isKeepAliveConnectionActive = false;
+            _isDataConnectionActive = false;
             Listener.Stop();
         }
         public async void StartListen(Logger.Logger logger)
@@ -79,26 +84,53 @@ namespace SLI.Data.DataCollectionHandler
             {
                 _logger = logger;
                 Init();
-                _isConnectionActive = true;
-                if (DataCollectionHandler.Listener != null)
-                    return;
-                Listener = new TcpListener(IPAddress.Any, _dataHandlerConfig.DataHandlerListeningPort);
-                Listener.Start();
-                await AcceptConnections();
+                if (DataCollectionHandler.Listener == null)
+                {
+                    _isDataConnectionActive = true;
+                    Listener = new TcpListener(IPAddress.Any, _dataHandlerConfig.DataHandlerListeningPort);
+                    Listener.Start();
+                    await AcceptDataConnections();
+                }
+                if (DataCollectionHandler.KeepAliveListiner == null)
+                {
+                    _isKeepAliveConnectionActive = true;
+                    KeepAliveListiner = new TcpListener(IPAddress.Any, _dataHandlerConfig.KeepAliveListeningPort);
+                    KeepAliveListiner.Start();
+                    await AcceptKeepAliveConnectionConnections();
+                }
+            }
+            catch (Exception ex)
+            {
+                _isKeepAliveConnectionActive = false;
+                _isDataConnectionActive = false;
+                _logger.PublishMessage(new Logger.SLI_Message(ex.Message, Logger.SeverityLevels.Error, DateTime.Now));
+            }
+        }
+
+        private async Task AcceptKeepAliveConnectionConnections()
+        {
+            try
+            {
+                TcpClient client = await KeepAliveListiner.AcceptTcpClientAsync();
+                ClientList.Add(client.Client.LocalEndPoint.ToString(), DateTime.UtcNow);
+                while (_isKeepAliveConnectionActive)
+                {
+                    await KeepAliveClientProccessThread(client);
+                }
             }
             catch (Exception ex)
             {
                 _logger.PublishMessage(new Logger.SLI_Message(ex.Message, Logger.SeverityLevels.Error, DateTime.Now));
             }
         }
-        private async Task AcceptConnections()
+
+        private async Task AcceptDataConnections()
         {
             try
             {
-                while (_isConnectionActive)
+                TcpClient client = await Listener.AcceptTcpClientAsync();
+                while (_isDataConnectionActive)
                 {
-                    TcpClient client = await Listener.AcceptTcpClientAsync();
-                    ClientList.Add(client.Client.LocalEndPoint.ToString(), DateTime.UtcNow);
                     await DataClientProccessThread(client);
                 }
             }
@@ -130,6 +162,21 @@ namespace SLI.Data.DataCollectionHandler
                         _dataIsReady?.Invoke(decData);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.PublishMessage(new Logger.SLI_Message(ex.Message, Logger.SeverityLevels.Error, DateTime.Now));
+            }
+        }
+        private async Task KeepAliveClientProccessThread(TcpClient client)
+        {
+            try
+            {
+                NetworkStream networkStream = client.GetStream();
+                byte[] data = new byte[10000];
+                int size = await networkStream.ReadAsync(data, 0, data.Length);
+                _decoder.CurrentClient = client;
+                _decoder.Decode(data);
             }
             catch (Exception ex)
             {

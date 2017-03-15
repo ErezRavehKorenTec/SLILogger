@@ -20,7 +20,7 @@ namespace SLILogger
             //var thread3 = Task.Run(() => StayAlive());
             //var thread3 = Task.Run(() => WriteError(log));
             Task.WaitAll(new[] { thread1/*, thread2,thread3*/ });
-            //while (true) ;
+            while (true) ;
 
         }
 
